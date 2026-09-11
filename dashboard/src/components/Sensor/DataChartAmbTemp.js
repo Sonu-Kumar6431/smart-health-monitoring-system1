@@ -1,92 +1,78 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Line } from "react-chartjs-2";
-import "chartjs-plugin-streaming";
-// import chartColors from "./chartColors";
-import "./DataChart.css";
+import StreamingPlugin from "chartjs-plugin-streaming";
+import "chartjs-adapter-date-fns";
 
-var savedData = {};
+import {
+  Chart as ChartJS,
+  LinearScale,
+  PointElement,
+  LineElement,
+  TimeScale,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
-function DataTimeCheck(timestamp) {
-  if (Date.now() - timestamp < 2000) {
-    return savedData.sensorValue;
-  }
-  return null;
-}
+ChartJS.register(
+  LinearScale,
+  PointElement,
+  LineElement,
+  TimeScale,
+  Tooltip,
+  Legend,
+  StreamingPlugin
+);
 
-function onRefresh(chart) {
-  chart.config.data.datasets.forEach(function (dataset) {
-    dataset.data.push({
-      x: savedData.timestamp || Date.now(),
-      y: DataTimeCheck(savedData.timestamp),
-    });
-  });
-}
+const ChartComponent = ({ timestamp, sensorValue }) => {
+  const savedData = useRef({ timestamp: null, sensorValue: null });
 
-const DataChartAmbTemp = ({ config, timestamp, sensorValue }) => {
   useEffect(() => {
-    savedData = { timestamp, sensorValue };
+    savedData.current = { timestamp, sensorValue };
   }, [timestamp, sensorValue]);
 
+  const onRefresh = (chart) => {
+    const { timestamp, sensorValue } = savedData.current;
+
+    if (!timestamp || sensorValue === null) return;
+
+    chart.data.datasets[0].data.push({
+      x: timestamp,
+      y: sensorValue,
+    });
+  };
+
   return (
-    <div className="data-chart">
-      <Line
-        data={{
-          datasets: [
-            {
-              label: config.chartLabel,
-              data: [],
-              backgroundColor: config.color.bgColor,
-              borderColor: config.color.borderColor,
-              borderWidth: 4,
+    <Line
+      data={{
+        datasets: [
+          {
+            label: "Sensor Data",
+            data: [],
+            borderColor: "red",
+            backgroundColor: "rgba(255,0,0,0.2)",
+          },
+        ],
+      }}
+      options={{
+        animation: false,
+        responsive: true,
+        scales: {
+          x: {
+            type: "realtime",
+            realtime: {
+              duration: 30000,
+              refresh: 1000,
+              delay: 2000,
+              onRefresh: onRefresh,
             },
-          ],
-        }}
-        height={200}
-        options={{
-          maintainAspectRatio: false,
-          responsive: true,
-          scales: {
-            xAxes: [
-              {
-                scaleLabel: {
-                  display: true,
-                  labelString: config.xlabelString,
-                },
-                type: "realtime",
-                realtime: {
-                  duration: 30000,
-                  refresh: 1000,
-                  delay: 2000,
-                  onRefresh: onRefresh,
-                },
-              },
-            ],
-            yAxes: [
-              {
-                scaleLabel: {
-                  display: true,
-                  labelString: config.ylabelString,
-                },
-                ticks: {
-                  autoSkip: true,
-                  maxTicksLimit: 10,
-                  beginAtZero: true,
-                },
-              },
-            ],
           },
-          tooltips: {
-            mode: "nearest",
-            intersect: false,
+          y: {
+            beginAtZero: true,
           },
-          hover: {
-            mode: "nearest",
-            intersect: false,
-          },
-        }}
-      />
-    </div>
+        },
+      }}
+    />
   );
 };
 
-export default DataChartAmbTemp;
+export default ChartComponent;

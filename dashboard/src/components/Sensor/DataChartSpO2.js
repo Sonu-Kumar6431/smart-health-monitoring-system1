@@ -46,34 +46,18 @@ const DataChartSpO2 = ({ config, timestamp, sensorValue }) => {
           maintainAspectRatio: false,
           responsive: true,
           scales: {
-            xAxes: [
-              {
-                scaleLabel: {
-                  display: true,
-                  labelString: config.xlabelString,
-                },
-                type: "realtime",
-                realtime: {
-                  duration: 30000,
-                  refresh: 1000,
-                  delay: 2000,
-                  onRefresh: onRefresh,
-                },
-              },
-            ],
-            yAxes: [
-              {
-                scaleLabel: {
-                  display: true,
-                  labelString: config.ylabelString,
-                },
-                ticks: {
-                  autoSkip: true,
-                  maxTicksLimit: 10,
-                  beginAtZero: true,
-                },
-              },
-            ],
+            x: {
+            type: "realtime",
+            realtime: {
+              duration: 30000,
+              refresh: 1000,
+              delay: 2000,
+              onRefresh: onRefresh,
+            },
+          },
+          y: {
+            beginAtZero: true,
+          },
           },
           tooltips: {
             mode: "nearest",

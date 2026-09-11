@@ -25,7 +25,7 @@ const LoginScreen = ({ history }) => {
     };
 
     try {
-      const { data } = await axios.post(config.PRODUCTION_URL_LOGIN, { email, password }, request_config);
+      const { data } = await axios.post('http://localhost:5000/api/authenticate/login', { email, password }, request_config);
 
       localStorage.setItem("authToken", data.token);
 

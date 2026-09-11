@@ -37,7 +37,7 @@ const RegisterScreen = ({ history }) => {
 
     try {
       const { data } = await axios.post(
-        config.PRODUCTION_URL_REGISTER,
+        'http://localhost:5000/register',
         {
           username,
           email,

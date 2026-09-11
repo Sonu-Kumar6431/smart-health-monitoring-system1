@@ -52,7 +52,7 @@ const Dashboard = ({ history }) => {
       };
 
       try {
-        const { data } = await axios.get(config.PRODUCTION_URL_AUTHORIZE, request_config);
+        const { data } = await axios.get('http://localhost:5000', request_config);
         if (data.data === "ACCESS_GRANTED") {
           connectWebSocket();
         }

@@ -1,14 +1,16 @@
-require("dotenv").config({ path: "./config.env" });
+// require("dotenv").config({ path: "./config.env" });
 const express = require("express");
-const connectDB = require("./config/db");
+// const connectDB = require("./config/db");
 const errorHandler = require("./middleware/error");
 const http = require("http");
 const WebSocket = require("ws");
+const mongoose = require('mongoose');
 var helmet = require("helmet");
 var morgan = require("morgan");
 var fs = require("fs");
 var path = require("path");
 const cors = require("cors");
+const DB_PATH = "mongodb+srv://db_user:mongodb%40123@cluster0.sme7p2p.mongodb.net/";
 
 const corsOptions = {
   origin: "*",
@@ -19,7 +21,7 @@ const corsOptions = {
 var logStream = fs.createWriteStream(path.join(__dirname, "logs/access.log"), { flags: "a" });
 
 // Connect DB
-connectDB();
+// connectDB();
 
 const app = express();
 
@@ -71,7 +73,11 @@ wss.on("connection", function connection(ws) {
   });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT =  5000;
+
+mongoose.connect(DB_PATH)
+  .then(() => console.log("DB connected"))
+  .catch(err => console.error(err));
 
 const serverListener = server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
